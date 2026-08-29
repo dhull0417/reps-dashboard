@@ -65,7 +65,7 @@ export function Sidebar({
             className={navItemClassName('general')}
             onClick={() => handleSelectTab('general')}
           >
-            <span className="sidebar-nav-item-label">General</span>
+            <span className="sidebar-nav-item-label">Overview</span>
           </button>
         </li>
         {categories.map((category) => (
