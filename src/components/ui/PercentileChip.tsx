@@ -1,21 +1,17 @@
-import { formatOrdinal } from '../../lib/format'
-
-function tierForPercentile(percentile: number): 'good' | 'mid' | 'low' {
-  if (percentile >= 75) return 'good'
-  if (percentile >= 40) return 'mid'
-  return 'low'
-}
+import { formatOrdinal, tierForPercentile } from '../../lib/format'
 
 export function PercentileChip({
   percentile,
   rank,
   active,
   onClick,
+  size = 'md',
 }: {
   percentile: number
   rank: number
   active?: boolean
   onClick?: () => void
+  size?: 'md' | 'lg'
 }) {
   const tier = tierForPercentile(percentile)
 
@@ -24,11 +20,11 @@ export function PercentileChip({
       type="button"
       className={`percentile-chip tier-${tier}${active ? ' active' : ''}${
         onClick ? '' : ' static'
-      }`}
+      }${size === 'lg' ? ' percentile-chip-lg' : ''}`}
       onClick={onClick}
       disabled={!onClick}
     >
-      <span className="percentile-chip-value">{formatOrdinal(percentile)}</span>
+      <span className="percentile-chip-value">{formatOrdinal(percentile)} percentile</span>
       <span className="percentile-chip-rank">#{rank} / 100</span>
     </button>
   )

@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
 import { useCategories } from '../hooks/useCategories'
 import { usePlayerProfile } from '../hooks/usePlayerProfile'
@@ -11,6 +12,7 @@ import { Loading, ErrorState } from '../components/ui/Loading'
 import type { DistributionTarget } from '../lib/types'
 
 export function Dashboard() {
+  const navigate = useNavigate()
   const { dashboardUser, signOut } = useAuth()
   const { categories, loading: categoriesLoading } = useCategories()
   const {
@@ -25,7 +27,9 @@ export function Dashboard() {
 
   const handleSelectTab = (tab: string) => {
     setActiveTab(tab)
-    setActiveDistribution(null)
+    if (tab === 'general') {
+      setActiveDistribution(null)
+    }
   }
 
   if (!dashboardUser) {
@@ -45,7 +49,16 @@ export function Dashboard() {
     <div className="dashboard-shell">
       <Sidebar categories={categories} activeTab={activeTab} onSelectTab={handleSelectTab} />
       <div className="dashboard-main">
-        <Header playerName={player?.name ?? dashboardUser.display_name} onSignOut={signOut} />
+        <Header
+          playerName={player?.name ?? dashboardUser.display_name}
+          photoUrl={player?.photo_url}
+          repsRating={overallRanking?.reps_rating}
+          shotsTaken={player?.shots_taken_season}
+          repsDone={player?.reps_done}
+          trainingTimeMinutes={player?.training_time_minutes}
+          onSignOut={signOut}
+          onPrint={() => navigate('/print')}
+        />
         <div className="dashboard-body">
           <div className="dashboard-content">
             {categoriesLoading ? (
@@ -54,12 +67,14 @@ export function Dashboard() {
               <GeneralTab
                 player={player}
                 overallRanking={overallRanking}
+                categories={categories}
                 loading={profileLoading}
                 error={profileError}
               />
             ) : activeCategory ? (
               <CategoryTab
                 playerId={dashboardUser.player_id}
+                playerName={player?.name ?? dashboardUser.display_name}
                 category={activeCategory}
                 activeDistribution={activeDistribution}
                 onSelectDistribution={setActiveDistribution}
@@ -69,12 +84,7 @@ export function Dashboard() {
             )}
           </div>
 
-          {activeDistribution && (
-            <DistributionPanel
-              target={activeDistribution}
-              onClose={() => setActiveDistribution(null)}
-            />
-          )}
+          {activeDistribution && <DistributionPanel target={activeDistribution} />}
         </div>
       </div>
     </div>

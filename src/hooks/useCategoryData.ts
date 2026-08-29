@@ -30,6 +30,8 @@ export function useCategoryData(
     let active = true
     setLoading(true)
     setError(null)
+    setCategoryScore(null)
+    setSubcategoryRows([])
 
     async function load() {
       const [scoreRes, subcatRes] = await Promise.all([

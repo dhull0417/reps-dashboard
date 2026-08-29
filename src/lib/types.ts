@@ -1,12 +1,16 @@
 export interface Player {
   id: string
   name: string
+  photo_url?: string | null
   athleticism_percentile: number
   shooting_percentile: number
   skills_percentile: number
   weighted_score: number
   reps_rating: number
   reps_conversion_rating: number
+  shots_taken_season?: number | null
+  reps_done?: number | null
+  training_time_minutes?: number | null
   created_at: string
 }
 

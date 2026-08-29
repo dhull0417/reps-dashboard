@@ -24,6 +24,7 @@ export function useDistribution(target: DistributionTarget | null): Distribution
     let active = true
     setLoading(true)
     setError(null)
+    setValues([])
 
     const query =
       target.kind === 'subcategory'

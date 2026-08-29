@@ -7,18 +7,12 @@ import { formatOrdinal } from '../lib/format'
 import type { DistributionTarget } from '../lib/types'
 
 function formatValue(target: DistributionTarget, value: number): string {
-  if (target.kind === 'category') return `${formatOrdinal(value)} pct`
+  if (target.kind === 'category') return `${formatOrdinal(value)} percentile`
   const rounded = target.unit === 'reps' ? Math.round(value).toString() : value.toFixed(1)
   return target.unit === '%' ? `${rounded}%` : `${rounded} ${target.unit}`
 }
 
-export function DistributionPanel({
-  target,
-  onClose,
-}: {
-  target: DistributionTarget
-  onClose: () => void
-}) {
+export function DistributionPanel({ target }: { target: DistributionTarget }) {
   const { stats, loading, error } = useDistribution(target)
 
   return (
@@ -28,24 +22,18 @@ export function DistributionPanel({
           <span className="distribution-panel-eyebrow">Distribution · 100 players</span>
           <h3 className="distribution-panel-title">{target.label}</h3>
         </div>
-        <button
-          type="button"
-          className="distribution-panel-close"
-          onClick={onClose}
-          aria-label="Close distribution"
-        >
-          ×
-        </button>
       </div>
 
       {loading && (
         <div className="distribution-chart">
           <Skeleton height={90} />
-          <div className="distribution-chart-labels">
-            <Skeleton width={28} height={10} />
-            <Skeleton width={70} height={10} />
-            <Skeleton width={28} height={10} />
-          </div>
+          {target.kind === 'subcategory' && (
+            <div className="distribution-chart-labels">
+              <Skeleton width={28} height={10} />
+              <Skeleton width={70} height={10} />
+              <Skeleton width={28} height={10} />
+            </div>
+          )}
         </div>
       )}
       {error && <ErrorState message={error} />}
@@ -56,6 +44,8 @@ export function DistributionPanel({
             stats={stats}
             playerValue={target.playerValue}
             formatValue={(v) => formatValue(target, v)}
+            lowerIsBetter={target.kind === 'subcategory' && target.lowerIsBetter}
+            showAxis={target.kind === 'subcategory'}
           />
 
           <div className="distribution-panel-summary">

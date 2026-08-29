@@ -4,40 +4,41 @@ export function DistributionChart({
   stats,
   playerValue,
   formatValue,
+  lowerIsBetter,
+  showAxis = true,
 }: {
   stats: QuartileStats
   playerValue: number
   formatValue: (value: number) => string
+  lowerIsBetter?: boolean
+  showAxis?: boolean
 }) {
   const span = stats.max - stats.min
   const pad = span > 0 ? span * 0.1 : 1
   const domainMin = stats.min - pad
   const domainMax = stats.max + pad
-  const scale = (v: number) => ((v - domainMin) / (domainMax - domainMin)) * 100
+  const scale = (v: number) => {
+    const t = ((v - domainMin) / (domainMax - domainMin)) * 100
+    return lowerIsBetter ? 100 - t : t
+  }
 
   const minX = scale(stats.min)
   const maxX = scale(stats.max)
-  const boxLeft = scale(stats.q1)
-  const boxRight = scale(stats.q3)
+  const scaledQ1 = scale(stats.q1)
+  const scaledQ3 = scale(stats.q3)
   const medianX = scale(stats.median)
   const clampedPlayer = Math.min(Math.max(playerValue, stats.min), stats.max)
   const playerX = scale(clampedPlayer)
+  const [leftLabelValue, rightLabelValue] = lowerIsBetter
+    ? [stats.max, stats.min]
+    : [stats.min, stats.max]
 
   return (
     <div className="distribution-chart">
       <svg viewBox="0 0 100 40" preserveAspectRatio="none" className="distribution-chart-svg">
         <line x1={minX} x2={maxX} y1={20} y2={20} className="dist-whisker" vectorEffect="non-scaling-stroke" />
-        <line x1={minX} x2={minX} y1={13} y2={27} className="dist-cap" vectorEffect="non-scaling-stroke" />
-        <line x1={maxX} x2={maxX} y1={13} y2={27} className="dist-cap" vectorEffect="non-scaling-stroke" />
-        <rect
-          x={boxLeft}
-          y={7}
-          width={Math.max(boxRight - boxLeft, 0.6)}
-          height={26}
-          rx={1.5}
-          className="dist-box"
-        />
-        <line x1={medianX} x2={medianX} y1={7} y2={33} className="dist-median" vectorEffect="non-scaling-stroke" />
+        <line x1={scaledQ1} x2={medianX} y1={20} y2={20} className="dist-band-lower" vectorEffect="non-scaling-stroke" />
+        <line x1={medianX} x2={scaledQ3} y1={20} y2={20} className="dist-band-upper" vectorEffect="non-scaling-stroke" />
         <line
           x1={playerX}
           x2={playerX}
@@ -48,11 +49,13 @@ export function DistributionChart({
         />
         <circle cx={playerX} cy={20} r={3.2} className="dist-player-dot" />
       </svg>
-      <div className="distribution-chart-labels">
-        <span>{formatValue(stats.min)}</span>
-        <span className="distribution-chart-median">median {formatValue(stats.median)}</span>
-        <span>{formatValue(stats.max)}</span>
-      </div>
+      {showAxis && (
+        <div className="distribution-chart-labels">
+          <span>{formatValue(leftLabelValue)}</span>
+          <span className="distribution-chart-median">median {formatValue(stats.median)}</span>
+          <span>{formatValue(rightLabelValue)}</span>
+        </div>
+      )}
     </div>
   )
 }

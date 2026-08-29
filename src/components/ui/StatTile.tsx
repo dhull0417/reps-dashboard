@@ -4,15 +4,17 @@ export function StatTile({
   label,
   value,
   suffix,
+  accent,
 }: {
   label: string
   value: string | number
   suffix?: string
+  accent?: 'yellow' | 'red' | 'purple'
 }) {
   return (
     <div className="stat-tile">
       <span className="stat-tile-label">{label}</span>
-      <span className="stat-tile-value">
+      <span className={`stat-tile-value${accent ? ` accent-${accent}` : ''}`}>
         {value}
         {suffix && <span className="stat-tile-suffix">{suffix}</span>}
       </span>
